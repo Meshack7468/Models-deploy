@@ -30,9 +30,8 @@ st.set_page_config(page_title="Breast Cancer Prediction Suite", layout="wide")
 st.title(" Breast Cancer Multi-Model Prediction Suite")
 
 st.write(
-    "This app predicts **molecular subtype**, **survival status**, and **vital status** "
-    "based on patient and tumor information. For molecular subtypes, you’ll also receive "
-    "**personalized treatment guidance.**"
+    "This app uses patient and tumor details to predict breast cancer molecular subtype, survival status, vital status, "
+    "then give treatment guidance"
 )
 
 # -----------------------------
