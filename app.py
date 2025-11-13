@@ -152,43 +152,28 @@ if st.button("Predict"):
                 output = "DECEASED" if pred == 1 else "LIVING"
                 st.success(f"Predicted Survival Status: {output}")
 
-        # -----------------------------
+        # ------------------------
         # Vital Status Prediction
-        # -----------------------------
+        # ------------------------
+
+
         elif model_choice == "Vital Status Prediction":
             model = selected_model_info["model"]
+            pred = model.predict(input_data)[0]
 
-            if hasattr(model, "predict_proba"):
-                proba = model.predict_proba(input_data)[0]
-                pred = np.argmax(proba)
-                confidence = proba[pred] * 100
+            # Interpret prediction codes
+            if pred == 0:
+                status = "Died of the disease"
+            elif pred == 1:
+                status = "Died of other causes"
+            elif pred == 2:
+                status = "Living"
+            
 
-                # Interpret prediction codes
-                if pred == 0:
-                    status = "Died of the disease"
-                elif pred == 1:
-                    status = "Died of other causes"
-                elif pred == 2:
-                    status = "Living"
-                else:
-                    status = "Unknown"
+            st.success(f"Predicted Vital Status: {status}")
 
-                st.success(f"Predicted Vital Status: {status}")
-                st.metric(label="Model Confidence", value=f"{confidence:.1f}%")
 
-                
-            else:
-                pred = model.predict(input_data)[0]
-                if pred == 0:
-                    status = "Died of the disease"
-                elif pred == 1:
-                    status = "Died of other causes"
-                elif pred == 2:
-                    status = "Living"
-                else:
-                    status = "Unknown"
-                st.success(f"Predicted Vital Status: {status}")
-
+            
     except Exception as e:
         st.error(f"Prediction error: {e}")
         st.write("Input preview:", input_data)
