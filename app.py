@@ -205,7 +205,3 @@ if st.button("Predict"):
      
      
      
-     
-     
-        st.markdown("---")
-st.markdown("**By Meshack**")
