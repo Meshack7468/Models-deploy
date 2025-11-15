@@ -11,14 +11,14 @@ import numpy as np
 @st.cache_resource
 def load_models():
     models = {
-        "Molecular Subtype Prediction": {
+        "🩺Molecular Subtype Prediction": {
             "model": joblib.load("models/molecular_subtype_model.joblib"),
             "le": joblib.load("models/molecular_le.joblib")
         },
-        "Survival Status Prediction": {
+        "💉Survival Status Prediction": {
             "model": joblib.load("models/survival_status_model.joblib")
         },
-        "Vital Status Prediction": {
+        "🩺Vital Status Prediction": {
             "model": joblib.load("models/vital_status_model.joblib")
         }
     }
@@ -34,12 +34,12 @@ st.title("Breast Cancer Multi-Model Prediction Suite")
 
 st.write(
     "This app uses patient and tumor details to predict breast cancer **molecular subtype**, "
-    "**survival/vital status**, then recommend appropriate treatment approach."
+    "**survival/vital status**, then recommend suitable treatment approach."
 )
 
-# -----------------------------
+# --------------------
 # Model Selection
-# -----------------------------
+# -------------------
 st.sidebar.header("Select Model")
 model_choice = st.sidebar.selectbox(
     "Choose a model for prediction:",
@@ -51,8 +51,8 @@ st.markdown(f"###  **{model_choice}**")
 # Add informative model descriptions
 if model_choice == "Molecular Subtype Prediction":
     st.info("""
-    Predicts the molecular subtype of breast cancer (e.g., Luminal A, Luminal B, HER2-enriched, Normal-like or Basal).  
-    This helps guide personalized treatment strategies.
+    Predicts the molecular subtype of breast cancer (e.g., Luminal A, Luminal B, HER2-enriched, or Basal).  
+    and recommends personalized treatment strategies.
     """)
 elif model_choice == "Survival Status Prediction":
     st.info("""
@@ -67,9 +67,9 @@ elif model_choice == "Vital Status Prediction":
 st.write("Provide patient and tumor information below to get predictions. All models use the same input features.")
 
 
-# -----------------------------
+# ------------------------
 # Input Features
-# -----------------------------
+# ------------------------
 st.subheader("Patient & Tumor Information")
 
 col1, col2 = st.columns(2)
@@ -138,13 +138,16 @@ if st.button("Predict"):
 
             # Treatment Guidance
             if "LumA" in pred_label:
-                st.info("Recommended Treatment: hormone therapy, radiotherapy, and surgery.")
+                st.info("Recommended Treatment: Hormone therapy, Radiotherapy.")
             elif "LumB" in pred_label:
-                st.info("Recommended Treatment: hormone therapy, chemotherapy, and surgery.")
+                st.info("Recommended Treatment: Hormone therapy, Radiotherapy, Chemotherapy.")
             elif "Her2" in pred_label:
-                st.info("Recommended Treatment: targeted therapy and chemotherapy.")
+                st.info("Recommended Treatment: Radiotherapy, Chemotherapy.")
             elif "Basal" in pred_label:
-                st.warning("Recommended Treatment: chemotherapy, targeted systemic therapy, surgery, and radiotherapy.")
+                st.warning("Recommended Treatment: Chemotherapy, Radiotherapy.")
+            elif "Claudin-low" in pred_label:
+                st.info("Recommended Treatment: Surgery and Chemotherapy.")
+
             else:
                 st.info("Recommended Treatment: Surgery and chemotherapy.")
 
@@ -169,9 +172,9 @@ if st.button("Predict"):
                 output = "DECEASED" if pred == 1 else "LIVING"
                 st.success(f"Predicted Survival Status: {output}")
 
-        # ------------------------
+        # --------------------
         # Vital Status Prediction
-        # ------------------------
+        # --------------------
 
 
         elif model_choice == "Vital Status Prediction":
