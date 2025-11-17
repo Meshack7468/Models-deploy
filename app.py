@@ -1,7 +1,7 @@
 
 
 import streamlit as st
-import joblib
+import pickle
 import pandas as pd
 import numpy as np
 
@@ -12,14 +12,14 @@ import numpy as np
 def load_models():
     models = {
         "Molecular Subtype Prediction": {
-            "model": joblib.load("models/molecular_subtype_model.joblib"),
-            "le": joblib.load("models/molecular_le.joblib")
+            "model": pickle.load(open("models2/molecular_subtype_model.pkl", "rb")),
+            "le": pickle.load(open("models2/molecular_le.pkl", "rb"))
         },
         "Survival Status Prediction": {
-            "model": joblib.load("models/survival_status_model.joblib")
+            "model": pickle.load(open("models2/survival_status_model.pkl", "rb"))
         },
         "Vital Status Prediction": {
-            "model": joblib.load("models/vital_status_model.joblib")
+            "model": pickle.load(open("models2/vital_status_model.pkl", "rb"))
         }
     }
     return models
@@ -64,7 +64,7 @@ elif model_choice == "Vital Status Prediction":
     
     """)
 
-st.write("Provide patient and tumor information below to get predictions. All models use the same input features.")
+st.write("Provide patient and tumor information below to get predictions. These predictions come from statistical models and should be considered together with your doctor’s advice.")
 
 
 # ------------------------
@@ -146,10 +146,10 @@ if st.button("Predict"):
             elif "Basal" in pred_label:
                 st.warning("Recommended Treatment: Chemotherapy, Radiotherapy.")
             elif "Claudin-low" in pred_label:
-                st.info("Recommended Treatment: Surgery and Chemotherapy.")
+                st.info("Recommended Treatment Radio therapy and Chemotherapy.")
 
             else:
-                st.info("Recommended Treatment: Surgery and chemotherapy.")
+                st.info("Recommended Treatment: Radio therapy and chemotherapy.")
 
         # -----------------------------
         # Survival Status Prediction
