@@ -4,6 +4,9 @@ import streamlit as st
 import pickle
 import pandas as pd
 import numpy as np
+import tensorflow as tf
+from keras.models import load_model
+from PIL import Image
 
 # -----------------------------
 # Load Models
@@ -11,15 +14,19 @@ import numpy as np
 @st.cache_resource
 def load_models():
     models = {
+        "Breast Cancer Image Classification":{
+            "model":load_model("models/cnn_model.keras")
+        },
         "Molecular Subtype Prediction": {
-            "model": pickle.load(open("models2/molecular_subtype_model.pkl", "rb")),
-            "le": pickle.load(open("models2/molecular_le.pkl", "rb"))
+            "model": pickle.load(open("models/molecular_subtype_model.pkl", "rb")),
+            "le": pickle.load(open("models/molecular_le.pkl", "rb"))
         },
         "Survival Status Prediction": {
-            "model": pickle.load(open("models2/survival_status_model.pkl", "rb"))
+            "model": pickle.load(open("models/survival_status_model.pkl", "rb"))
         },
         "Vital Status Prediction": {
-            "model": pickle.load(open("models2/vital_status_model.pkl", "rb"))
+            "model": pickle.load(open("models/vital_status_model.pkl", "rb")),
+            "le": pickle.load(open("models/vitalstatus_le.pkl", "rb"))
         }
     }
     return models
@@ -33,20 +40,71 @@ st.set_page_config(page_title="Breast Cancer Prediction Suite", layout="wide")
 st.title("Breast Cancer Multi-Model Prediction Suite")
 
 st.write(
-    "This app uses patient and tumor details to predict breast cancer **molecular subtype**, "
-    "**survival/vital status**, then recommend suitable treatment approach."
+    "This app uses patient details, tumor information, and medical imaging to make predictions "
+    "related to breast cancer diagnosis and prognosis."
 )
 
 # --------------------
 # Model Selection
 # -------------------
-st.sidebar.header("Select Model")
+st.sidebar.header("Select Prediction Type")
 model_choice = st.sidebar.selectbox(
     "Choose a model for prediction:",
-    list(models.keys())
+    [
+        "Breast Cancer Image Classification",
+        "Molecular Subtype Prediction",
+        "Survival Status Prediction",
+        "Vital Status Prediction"
+    ]
 )
 
 selected_model_info = models[model_choice]
+# ------------------------------
+# IMAGE CLASSIFICATION PAGE
+# -------------------------------
+
+if model_choice == "Breast Cancer Image Classification":
+
+    st.markdown("##  Breast Cancer Image Classification")
+    st.info("Upload a microscopic image of breast tissue. The CNN model will classify it as *Benign or Malignant*.")
+
+    uploaded_file = st.file_uploader(
+        "Upload Microscopic Breast Tissue Image (JPG/PNG/JPEG)",
+        type=["jpg", "png", "jpeg"]
+    )
+
+    if uploaded_file is not None:
+        try:
+            img = Image.open(uploaded_file).convert("RGB")
+            st.image(img, caption="Uploaded Image", width=300)
+
+            img = img.resize((224, 224))
+            img_array = np.expand_dims(np.array(img) / 255.0, axis=0)
+
+            cnn_model = selected_model_info["model"]
+            prediction = cnn_model.predict(img_array)[0][0]
+
+            if prediction > 0.5:
+                result = "Malignant"
+                color = "red"
+            else:
+                result = "Benign"
+                color = "green"
+
+            st.markdown(
+                f"### Prediction: *<span style='color:{color}'>{result}</span>*",
+                unsafe_allow_html=True
+            )
+
+        except Exception as e:
+            st.error(f"Image classification error: {e}")
+
+    st.stop()  # Prevents clinical inputs from showing
+
+# ---------------------------------
+# CLINICAL PREDICTION MODELS
+# ----------------------------------
+
 st.markdown(f"###  **{model_choice}**")
 # Add informative model descriptions
 if model_choice == "Molecular Subtype Prediction":
@@ -151,6 +209,7 @@ if st.button("Predict"):
             else:
                 st.info("Recommended Treatment: Radiotherapy and chemotherapy.")
 
+       
         # -----------------------------
         # Survival Status Prediction
         # -----------------------------
@@ -183,11 +242,11 @@ if st.button("Predict"):
 
             # Interpret prediction codes
             if pred == 0:
-                status = "Died of the disease"
+                status = "DIED OF THE DISEASE"
             elif pred == 1:
-                status = "Died of other causes"
+                status = "DIED OF OTHER CAUSES"
             elif pred == 2:
-                status = "Living"
+                status = "LIVING"
             
 
             st.success(f"Predicted Vital Status: {status}")
